@@ -28,78 +28,79 @@ using DOOR.Shared.DTO;
 using DOOR.Shared.Utils;
 using DOOR.Server.Controllers.Common;
 
-namespace CSBA6.Server.Controllers.app
+namespace DOOR.Server.Controllers.UD
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CourseController : BaseController
+
+    public class GradeConversionController : BaseController
     {
-        public CourseController(DOOROracleContext _DBcontext,
+        public GradeConversionController(DOOROracleContext _DBcontext,
             OraTransMsgs _OraTransMsgs)
             : base(_DBcontext, _OraTransMsgs)
 
         {
         }
 
-
         [HttpGet]
-        [Route("GetCourse")]
-        public async Task<IActionResult> GetCourse()
+        [Route("GetGradeConversion")]
+        public async Task<IActionResult> GetGradeConversion()
         {
-            List<CourseDTO> lst = await _context.Courses
-                .Select(sp => new CourseDTO
+            List<GradeConversionDTO> lst = await _context.GradeConversions
+                .Select(sp => new GradeConversionDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
                     CreatedBy = sp.CreatedBy,
                     CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
+                    GradePoint = sp.GradePoint,
+                    LetterGrade = sp.LetterGrade,
+                    MaxGrade = sp.MaxGrade,
+                    MinGrade = sp.MinGrade,
                     ModifiedBy = sp.ModifiedBy,
                     ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite
+                    SchoolId = sp.SchoolId,
                 }).ToListAsync();
             return Ok(lst);
         }
 
-
         [HttpGet]
-        [Route("GetCourse/{_CourseNo}")]
-        public async Task<IActionResult> GetCourse(int _CourseNo)
+        [Route("GetGradeConversion/{_SchoolID}")]
+        public async Task<IActionResult> GetGradeConversion(int _SchoolID)
         {
-            CourseDTO? lst = await _context.Courses
-                .Where(x => x.CourseNo == _CourseNo)
-                .Select(sp => new CourseDTO
+            GradeConversionDTO? lst = await _context.GradeConversions
+                .Where(x => x.SchoolId == _SchoolID)
+                .Select(sp => new GradeConversionDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
                     CreatedBy = sp.CreatedBy,
                     CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
+                    GradePoint = sp.GradePoint,
+                    LetterGrade = sp.LetterGrade,
+                    MaxGrade = sp.MaxGrade,
+                    MinGrade = sp.MinGrade,
                     ModifiedBy = sp.ModifiedBy,
                     ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite
+                    SchoolId = sp.SchoolId,
                 }).FirstOrDefaultAsync();
             return Ok(lst);
         }
 
-
         [HttpPost]
-        [Route("PostCourse")]
-        public async Task<IActionResult> PostCourse([FromBody] CourseDTO _CourseDTO)
+        [Route("PostGradeConversion")]
+        public async Task<IActionResult> PostGradeConversion([FromBody] GradeConversionDTO _GradeConversionDTO)
         {
             try
             {
-                Course c = await _context.Courses.Where(x => x.CourseNo == _CourseDTO.CourseNo).FirstOrDefaultAsync();
+                GradeConversion c = await _context.GradeConversions.Where(x => x.SchoolId == _GradeConversionDTO.SchoolId).FirstOrDefaultAsync();
 
                 if (c == null)
                 {
-                    c = new Course
+                    c = new GradeConversion
                     {
-                        Cost = _CourseDTO.Cost,
-                        Description = _CourseDTO.Description,
-                        Prerequisite = _CourseDTO.Prerequisite
+                        GradePoint = _GradeConversionDTO.GradePoint,
+                        MaxGrade = _GradeConversionDTO.MaxGrade,
+                        MinGrade = _GradeConversionDTO.MinGrade,
+
                     };
-                    _context.Courses.Add(c);
+                    _context.GradeConversions.Add(c);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -120,27 +121,22 @@ namespace CSBA6.Server.Controllers.app
 
             return Ok();
         }
-
-
-
-
-
 
         [HttpPut]
-        [Route("PutCourse")]
-        public async Task<IActionResult> PutCourse([FromBody] CourseDTO _CourseDTO)
+        [Route("PutGradeConversion")]
+        public async Task<IActionResult> PutGradeConversion([FromBody] GradeConversionDTO _GradeConversionDTO)
         {
             try
             {
-                Course c = await _context.Courses.Where(x => x.CourseNo == _CourseDTO.CourseNo).FirstOrDefaultAsync();
+                GradeConversion c = await _context.GradeConversions.Where(x => x.SchoolId == _GradeConversionDTO.SchoolId).FirstOrDefaultAsync();
 
                 if (c != null)
                 {
-                    c.Description = _CourseDTO.Description;
-                    c.Cost = _CourseDTO.Cost;
-                    c.Prerequisite = _CourseDTO.Prerequisite;
+                    c.GradePoint = _GradeConversionDTO.GradePoint;
+                    c.MaxGrade = _GradeConversionDTO.MaxGrade;
+                    c.MinGrade = _GradeConversionDTO.MinGrade;
 
-                    _context.Courses.Update(c);
+                    _context.GradeConversions.Update(c);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -159,21 +155,19 @@ namespace CSBA6.Server.Controllers.app
                 return StatusCode(StatusCodes.Status417ExpectationFailed, ex_ser);
             }
 
-            return Ok();
         }
-
 
         [HttpDelete]
-        [Route("DeleteCourse/{_CourseNo}")]
-        public async Task<IActionResult> DeleteCourse(int _CourseNo)
+        [Route("DeleteGradeConversion/{_SchoolId}")]
+        public async Task<IActionResult> DeleteGradeConversion(int _SchoolId)
         {
             try
             {
-                Course c = await _context.Courses.Where(x => x.CourseNo == _CourseNo).FirstOrDefaultAsync();
+                GradeConversion c = await _context.Courses.Where(x => x.SchoolId == _SchoolId).FirstOrDefaultAsync();
 
                 if (c != null)
                 {
-                    _context.Courses.Remove(c);
+                    _context.GradeConversions.Remove(c);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -194,8 +188,5 @@ namespace CSBA6.Server.Controllers.app
 
             return Ok();
         }
-
-
-
     }
 }

@@ -27,79 +27,92 @@ using System.Numerics;
 using DOOR.Shared.DTO;
 using DOOR.Shared.Utils;
 using DOOR.Server.Controllers.Common;
+using System;
 
-namespace CSBA6.Server.Controllers.app
+namespace DOOR.Server.Controllers.UD
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CourseController : BaseController
-    {
-        public CourseController(DOOROracleContext _DBcontext,
+
+    public class StudentController: BaseController
+	{
+        public StudentController(DOOROracleContext _DBcontext,
             OraTransMsgs _OraTransMsgs)
             : base(_DBcontext, _OraTransMsgs)
-
         {
-        }
-
+		}
 
         [HttpGet]
-        [Route("GetCourse")]
-        public async Task<IActionResult> GetCourse()
+        [Route("GetStudent")]
+        public async Task<IActionResult> GetStudent()
         {
-            List<CourseDTO> lst = await _context.Courses
-                .Select(sp => new CourseDTO
+            List<StudentDTO> lst = await _context.Students
+                .Select(sp => new StudentDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
-                    CreatedBy = sp.CreatedBy,
-                    CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
-                    ModifiedBy = sp.ModifiedBy,
-                    ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite
+                     CreatedBy=sp.CreatedBy,
+                     CreatedDate=sp.CreatedDate,
+                     Employer=sp.Employer,
+                     FirstName=sp.FirstName,
+                     LastName=sp.LastName,
+                     ModifiedBy=sp.ModifiedBy,
+                     Phone=sp.Phone,
+                     RegistrationDate=sp.RegistrationDate,
+                     Salutation=sp.Salutation,
+                     StreetAddress=sp.StreetAddress,
+                     StudentId=sp.StudentId,
+                     Zip=sp.Zip,
+                     
                 }).ToListAsync();
             return Ok(lst);
         }
 
-
         [HttpGet]
-        [Route("GetCourse/{_CourseNo}")]
-        public async Task<IActionResult> GetCourse(int _CourseNo)
+        [Route("GetStudent/{_StudentID}")]
+        public async Task<IActionResult> GetStudent(int _StudentID)
         {
-            CourseDTO? lst = await _context.Courses
-                .Where(x => x.CourseNo == _CourseNo)
-                .Select(sp => new CourseDTO
+            StudentDTO ? lst = await _context.Students
+                .Where(x=>x.StudentId ==_StudentID)
+                .Select(sp => new StudentDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
                     CreatedBy = sp.CreatedBy,
                     CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
+                    Employer = sp.Employer,
+                    FirstName = sp.FirstName,
+                    LastName = sp.LastName,
                     ModifiedBy = sp.ModifiedBy,
-                    ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite
+                    Phone = sp.Phone,
+                    RegistrationDate = sp.RegistrationDate,
+                    Salutation = sp.Salutation,
+                    StreetAddress = sp.StreetAddress,
+                    StudentId = sp.StudentId,
+                    Zip = sp.Zip,
+
                 }).FirstOrDefaultAsync();
             return Ok(lst);
         }
 
 
+
         [HttpPost]
-        [Route("PostCourse")]
-        public async Task<IActionResult> PostCourse([FromBody] CourseDTO _CourseDTO)
+        [Route("PostStudent")]
+        public async Task<IActionResult> PostStudent([FromBody] StudentDTO _StudentDTO)
         {
             try
             {
-                Course c = await _context.Courses.Where(x => x.CourseNo == _CourseDTO.CourseNo).FirstOrDefaultAsync();
+                Student s = await _context.Students.Where(x => x.StudentId == _StudentDTO.StudentId).FirstOrDefaultAsync();
 
-                if (c == null)
+                if (s == null)
                 {
-                    c = new Course
+                    s = new Student
                     {
-                        Cost = _CourseDTO.Cost,
-                        Description = _CourseDTO.Description,
-                        Prerequisite = _CourseDTO.Prerequisite
+                        FirstName = _StudentDTO.FirstName,
+                        LastName = _StudentDTO.LastName,
+                        RegistrationDate = _StudentDTO.RegistrationDate,
+                        Salutation = _StudentDTO.Salutation,
+                        StreetAddress = _StudentDTO.StreetAddress,
+                        Zip=_StudentDTO.Zip
                     };
-                    _context.Courses.Add(c);
+                    _context.Students.Add(s);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -121,27 +134,27 @@ namespace CSBA6.Server.Controllers.app
             return Ok();
         }
 
-
-
-
-
-
-        [HttpPut]
-        [Route("PutCourse")]
-        public async Task<IActionResult> PutCourse([FromBody] CourseDTO _CourseDTO)
+        [HttpPost]
+        [Route("PutStudent")]
+        public async Task<IActionResult> PutStudent([FromBody] StudentDTO _StudentDTO)
         {
             try
             {
-                Course c = await _context.Courses.Where(x => x.CourseNo == _CourseDTO.CourseNo).FirstOrDefaultAsync();
+                Student s = await _context.Students.Where(x => x.StudentId == _StudentDTO.StudentId).FirstOrDefaultAsync();
 
-                if (c != null)
+                if (s != null)
                 {
-                    c.Description = _CourseDTO.Description;
-                    c.Cost = _CourseDTO.Cost;
-                    c.Prerequisite = _CourseDTO.Prerequisite;
+                    {
+                        s.FirstName = _StudentDTO.FirstName;
+                        s.LastName = _StudentDTO.LastName;
+                        s.RegistrationDate = _StudentDTO.RegistrationDate;
+                        s.Salutation = _StudentDTO.Salutation;
+                        s.StreetAddress = _StudentDTO.StreetAddress;
+                        s.Zip = _StudentDTO.Zip;
 
-                    _context.Courses.Update(c);
-                    await _context.SaveChangesAsync();
+                        _context.Students.Update(s);
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
 
@@ -161,19 +174,18 @@ namespace CSBA6.Server.Controllers.app
 
             return Ok();
         }
-
 
         [HttpDelete]
-        [Route("DeleteCourse/{_CourseNo}")]
-        public async Task<IActionResult> DeleteCourse(int _CourseNo)
+        [Route("DeleteStudent/{_StudentId}")]
+        public async Task<IActionResult> DeleteStudent(int _StudentId)
         {
             try
             {
-                Course c = await _context.Courses.Where(x => x.CourseNo == _CourseNo).FirstOrDefaultAsync();
+                Student s = await _context.Students.Where(x => x.StudentId == _StudentId).FirstOrDefaultAsync();
 
-                if (c != null)
+                if (s != null)
                 {
-                    _context.Courses.Remove(c);
+                    _context.Students.Remove(s);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -194,8 +206,10 @@ namespace CSBA6.Server.Controllers.app
 
             return Ok();
         }
+
 
 
 
     }
 }
+
